@@ -18,7 +18,8 @@ const config = {
     id: "M30-2", // Powell St Platform 2
     direction: "eastbound".toLowerCase(),
   },
-  port: 3001
+  port: 3001,
+  host: '0.0.0.0'
 };
 
 // Load static GTFS data
@@ -403,11 +404,11 @@ app.get('/stops', (req, res) => {
 // Start server
 loadStaticData();
 
-app.listen(config.port, () => {
+app.listen(config.port, config.host, () => {
   console.log(`\n🚇 BART GTFS Real-time API Server`);
   console.log(`📍 Station: ${config.station.id} (${staticData.stops.get(config.station.id)?.stop_name || 'Unknown'})`);
   console.log(`🧭 Direction: ${config.station.direction}`);
-  console.log(`🌐 Server running on http://localhost:${config.port}`);
+  console.log(`🌐 Server running on http://${config.host}:${config.port}`);
   console.log(`\nAvailable endpoints:`);
   console.log(`  GET /                - API information`);
   console.log(`  GET /station         - Configured station info`);
