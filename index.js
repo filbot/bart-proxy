@@ -4,6 +4,8 @@ import { staticDataService } from './src/services/StaticDataService.js';
 import { gtfsMonitor } from './src/services/GtfsMonitor.js';
 import { transitService } from './src/services/TransitService.js';
 
+import { gtfsUpdater } from './src/services/GtfsUpdater.js';
+
 // Initialize Express app
 const app = express();
 app.use(express.json());
@@ -18,9 +20,11 @@ app.get('/', (req, res) => {
       '/next': 'Get next 4 arrivals in simplified format (destination & minutes)',
       '/stops': 'List all available stops',
       '/health': 'Health check endpoint',
-      '/status': 'Internal status of the monitor'
+      '/status': 'Internal status of the monitor',
+      '/update': 'Trigger manual GTFS update (admin)'
     },
     configuration: {
+      // ...
       station: config.station,
       feeds: {
         trips: config.feeds.trips,
@@ -150,6 +154,16 @@ app.get('/stops', (req, res) => {
   res.json({ stops, count: stops.length });
 });
 
+// Update endpoint
+app.post('/update', async (req, res) => {
+  try {
+    await gtfsUpdater.checkForUpdates();
+    res.json({ status: 'Update executed', timestamp: new Date().toISOString() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Start server
 async function startServer() {
   try {
@@ -158,6 +172,9 @@ async function startServer() {
 
     // Start GTFS Monitor (Background polling)
     gtfsMonitor.start();
+
+    // Start GTFS Updater (Daily check)
+    gtfsUpdater.start();
 
     app.listen(config.port, config.host, () => {
       console.log(`\n🚇 BART GTFS Real-time API Server`);

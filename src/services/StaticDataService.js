@@ -61,6 +61,16 @@ class StaticDataService {
         }
     }
 
+    reload() {
+        console.log('Reloading static data...');
+        this.stops.clear();
+        this.routes.clear();
+        this.trips.clear();
+        this.stopTimes.clear();
+        this.initialized = false;
+        this.load();
+    }
+
     getStop(stopId) {
         return this.stops.get(stopId);
     }
