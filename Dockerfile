@@ -12,6 +12,7 @@ RUN npm ci --only=production
 
 # Copy application files
 COPY index.js ./
+COPY src ./src
 COPY gtfs-static-data ./gtfs-static-data
 
 # Expose the application port
