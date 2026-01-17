@@ -6,9 +6,14 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "update-gtfs": "echo 'Please download from https://www.bart.gov/schedules/developers/gtfs' && exit 1"
   },
-  "keywords": ["gtfs", "bart", "transit"],
+  "keywords": [
+    "gtfs",
+    "bart",
+    "transit"
+  ],
   "author": "Filip Grace",
   "license": "MIT",
   "dependencies": {
