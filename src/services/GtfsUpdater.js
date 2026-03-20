@@ -96,18 +96,10 @@ class GtfsUpdater {
         }
 
         const targetDir = config.paths.staticData;
-        const tempDir = targetDir + '.tmp';
-        const backupDir = targetDir + '.bak';
 
-        // Extract to temp directory first to avoid corruption on failure
-        console.log(`Extracting to ${tempDir}...`);
-        zip.extractAllTo(tempDir, true);
-
-        // Swap directories: backup old, move new into place, remove backup
-        if (fs.existsSync(backupDir)) fs.rmSync(backupDir, { recursive: true });
-        if (fs.existsSync(targetDir)) fs.renameSync(targetDir, backupDir);
-        fs.renameSync(tempDir, targetDir);
-        if (fs.existsSync(backupDir)) fs.rmSync(backupDir, { recursive: true });
+        // Extract directly into the target directory (may be a bind mount, so can't rename it)
+        console.log(`Extracting to ${targetDir}...`);
+        zip.extractAllTo(targetDir, true);
 
         // Reload services
         staticDataService.reload();
