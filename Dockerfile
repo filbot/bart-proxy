@@ -15,9 +15,6 @@ COPY index.js ./
 COPY src ./src
 COPY gtfs-static-data ./gtfs-static-data
 
-# Declare volume for persistent GTFS data
-VOLUME /app/gtfs-static-data
-
 # Expose the application port
 EXPOSE 3001
 

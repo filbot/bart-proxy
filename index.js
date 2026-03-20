@@ -1,3 +1,5 @@
+import { existsSync } from 'fs';
+import { join } from 'path';
 import express from 'express';
 import { config } from './src/config/config.js';
 import { staticDataService } from './src/services/StaticDataService.js';
@@ -167,6 +169,13 @@ app.post('/update', async (req, res) => {
 // Start server
 async function startServer() {
   try {
+    // Download GTFS data if not present
+    const stopsFile = join(config.paths.staticData, 'stops.txt');
+    if (!existsSync(stopsFile)) {
+      console.log('No GTFS static data found. Downloading...');
+      await gtfsUpdater.checkForUpdates();
+    }
+
     // Load Static Data
     staticDataService.load();
 
