@@ -29,10 +29,17 @@ class GtfsMonitor {
         this.updateAlerts();
 
         // Start polling intervals
-        setInterval(() => this.updateTrips(), config.refreshInterval);
-        setInterval(() => this.updateAlerts(), config.refreshInterval * 2); // Alerts change less often
+        this.tripsInterval = setInterval(() => this.updateTrips(), config.refreshInterval);
+        this.alertsInterval = setInterval(() => this.updateAlerts(), config.refreshInterval * 2); // Alerts change less often
 
         console.log('GTFS Real-time monitor started');
+    }
+
+    stop() {
+        clearInterval(this.tripsInterval);
+        clearInterval(this.alertsInterval);
+        this.isPolling = false;
+        console.log('GTFS Real-time monitor stopped');
     }
 
     async fetchFeed(url, type) {

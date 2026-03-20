@@ -1,0 +1,16 @@
+services:
+  bart-proxy:
+    build: .
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./gtfs-static-data:/app/gtfs-static-data
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

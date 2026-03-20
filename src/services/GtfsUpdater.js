@@ -14,8 +14,13 @@ class GtfsUpdater {
 
     start() {
         // Check daily
-        setInterval(() => this.checkForUpdates(), 24 * 60 * 60 * 1000);
+        this.interval = setInterval(() => this.checkForUpdates(), 24 * 60 * 60 * 1000);
         console.log('GTFS Updater service started (Daily checks)');
+    }
+
+    stop() {
+        clearInterval(this.interval);
+        console.log('GTFS Updater service stopped');
     }
 
     async checkForUpdates() {
@@ -90,9 +95,19 @@ class GtfsUpdater {
             throw new Error('Invalid GTFS zip: missing required files');
         }
 
-        // Extract to static data directory
-        console.log(`Extracting to ${config.paths.staticData}...`);
-        zip.extractAllTo(config.paths.staticData, true); // true = overwrite
+        const targetDir = config.paths.staticData;
+        const tempDir = targetDir + '.tmp';
+        const backupDir = targetDir + '.bak';
+
+        // Extract to temp directory first to avoid corruption on failure
+        console.log(`Extracting to ${tempDir}...`);
+        zip.extractAllTo(tempDir, true);
+
+        // Swap directories: backup old, move new into place, remove backup
+        if (fs.existsSync(backupDir)) fs.rmSync(backupDir, { recursive: true });
+        if (fs.existsSync(targetDir)) fs.renameSync(targetDir, backupDir);
+        fs.renameSync(tempDir, targetDir);
+        if (fs.existsSync(backupDir)) fs.rmSync(backupDir, { recursive: true });
 
         // Reload services
         staticDataService.reload();

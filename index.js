@@ -176,7 +176,7 @@ async function startServer() {
     // Start GTFS Updater (Daily check)
     gtfsUpdater.start();
 
-    app.listen(config.port, config.host, () => {
+    const server = app.listen(config.port, config.host, () => {
       console.log(`\n🚇 BART GTFS Real-time API Server`);
       console.log(`📍 Station: ${config.station.id} (${staticDataService.getStop(config.station.id)?.stop_name || 'Unknown'})`);
       console.log(`🧭 Direction: ${config.station.direction}`);
@@ -190,6 +190,23 @@ async function startServer() {
       console.log(`  GET /health          - Health check`);
       console.log(`  GET /status          - Monitor status\n`);
     });
+
+    function shutdown(signal) {
+      console.log(`\n${signal} received. Shutting down gracefully...`);
+      gtfsMonitor.stop();
+      gtfsUpdater.stop();
+      server.close(() => {
+        console.log('Server closed.');
+        process.exit(0);
+      });
+      setTimeout(() => {
+        console.error('Forced shutdown after timeout.');
+        process.exit(1);
+      }, 5000);
+    }
+
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
   } catch (e) {
     console.error("Failed to start server:", e);
     process.exit(1);
